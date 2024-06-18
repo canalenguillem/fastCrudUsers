@@ -8,6 +8,7 @@ from datetime import timedelta
 from app.schemas import auth as schemas
 from app.schemas import user as user_schemas
 from app.models.user import User
+from app.models.profile import Profile
 from app.database import get_db
 from app.utils import create_access_token, verify_password
 from decouple import config
@@ -48,6 +49,15 @@ def get_current_user(db: Session = Depends(get_db), token: str = Depends(oauth2_
     if user is None:
         raise credentials_exception
     return user
+
+
+def get_current_admin_user(current_user: User = Depends(get_current_user)):
+    if current_user.profile.name != "admin":
+        raise HTTPException(
+            status_code=status.HTTP_403_FORBIDDEN,
+            detail="You do not have permission to perform this action",
+        )
+    return current_user
 
 
 @router.post("/token", response_model=schemas.Token)

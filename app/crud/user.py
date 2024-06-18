@@ -26,7 +26,7 @@ def create_user(db: Session, user: schemas.UserCreate):
         username=user.username,
         email=user.email,
         hashed_password=hashed_password.decode('utf-8'),
-        profile_id=user.profile_id
+        profile_id=user.profile_id  # Asegúrate de que el profile_id se asigna correctamente
     )
     db.add(db_user)
     db.commit()
