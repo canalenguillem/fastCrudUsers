@@ -2,3 +2,6 @@ fastapi
 uvicorn
 sqlalchemy
 bcrypt
+python-decouple 
+python-jose[cryptography] 
+passlib[bcrypt]

@@ -1,4 +1,4 @@
-# app/create_initial_data.py
+# app/initialize_db.py
 
 from sqlalchemy.orm import Session
 from app.database import SessionLocal, engine, Base
@@ -6,6 +6,7 @@ from app.models.user import User
 from app.models.profile import Profile
 from app.crud.user import create_user
 from app.schemas.user import UserCreate
+from app.utils import get_password_hash
 
 
 def init_db(db: Session):
