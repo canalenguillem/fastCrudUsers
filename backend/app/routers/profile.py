@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from typing import List
 from app.crud import profile as crud
 from app.schemas import profile as schemas
-from app.database import get_db
+from app.db.database import get_db
 from app.routers.auth import get_current_admin_user
 
 router = APIRouter()

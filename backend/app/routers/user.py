@@ -6,7 +6,7 @@ from typing import List
 from app.crud import user as crud_user
 from app.crud import profile as crud_profile
 from app.schemas import user as schemas_user
-from app.database import get_db
+from app.db.database import get_db
 from app.models.user import User  # Importa el modelo User
 from app.routers.auth import get_current_admin_user
 

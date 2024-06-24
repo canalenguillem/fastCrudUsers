@@ -1,7 +1,7 @@
 # app/models/profile.py
 
 from sqlalchemy import Column, Integer, String
-from app.database import Base
+from app.db.database import Base
 
 
 class Profile(Base):
