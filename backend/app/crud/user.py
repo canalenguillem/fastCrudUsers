@@ -1,15 +1,14 @@
 from sqlalchemy.orm import Session
 from app.models import user as models
 from app.schemas import user as schemas
-from cryptography.fernet import Fernet
-from decouple import config
 from fastapi import HTTPException, status
 from passlib.context import CryptContext
+from app.models import profile as profile_models
+from decouple import config
 
-# Configuración de encriptación de contraseñas
 pwd_context = CryptContext(schemes=["bcrypt"], deprecated="auto")
 SECRET_KEY = config("SECRET_KEY")
-cipher = Fernet(SECRET_KEY)
+DEFAULT_PROFILE = config("DEFAULT_PROFILE")
 
 
 def verify_password(plain_password, hashed_password):
@@ -34,8 +33,29 @@ def get_users(db: Session, skip: int = 0, limit: int = 100):
 
 def create_user(db: Session, user: schemas.UserCreate):
     hashed_password = get_password_hash(user.password)
+    profile_id = user.profile_id
+    if not profile_id:
+        default_profile = db.query(profile_models.Profile).filter(
+            profile_models.Profile.name == DEFAULT_PROFILE).first()
+        if not default_profile:
+            raise HTTPException(
+                status_code=status.HTTP_404_NOT_FOUND, detail="Default profile not found")
+        profile_id = default_profile.id
     db_user = models.User(email=user.email, hashed_password=hashed_password,
-                          username=user.username, profile_id=user.profile_id)
+                          username=user.username, profile_id=profile_id)
+    db.add(db_user)
+    db.commit()
+    db.refresh(db_user)
+    return db_user
+
+
+def update_user(db: Session, db_user: models.User, user_update: schemas.UserUpdate):
+    update_data = user_update.dict(exclude_unset=True)
+    if 'password' in update_data:
+        update_data['hashed_password'] = get_password_hash(
+            update_data.pop('password'))
+    for key, value in update_data.items():
+        setattr(db_user, key, value)
     db.add(db_user)
     db.commit()
     db.refresh(db_user)

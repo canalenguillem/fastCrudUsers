@@ -7,14 +7,12 @@ from decouple import config
 from app.schemas.token import Token, TokenData
 from app.crud import user as crud_user
 from app.db.database import get_db
-from app.schemas.user import User
+from app.schemas.user import User as UserSchema
 
 router = APIRouter()
 
-# Configuración para OAuth2
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="token")
 
-# Clave secreta y algoritmo
 SECRET_KEY = config("SECRET_KEY")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
@@ -51,13 +49,13 @@ async def get_current_user(token: str = Depends(oauth2_scheme), db: Session = De
     return user
 
 
-async def get_current_active_user(current_user: User = Depends(get_current_user)):
+async def get_current_active_user(current_user: UserSchema = Depends(get_current_user)):
     if not current_user.is_active:
         raise HTTPException(status_code=400, detail="Inactive user")
     return current_user
 
 
-async def get_current_admin_user(current_user: User = Depends(get_current_user)):
+async def get_current_admin_user(current_user: UserSchema = Depends(get_current_user)):
     if current_user.profile.name != "admin":
         raise HTTPException(
             status_code=403, detail="The user doesn't have enough privileges")

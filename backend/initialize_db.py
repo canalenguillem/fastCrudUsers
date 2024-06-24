@@ -1,36 +1,43 @@
-# app/initialize_db.py
-
 from sqlalchemy.orm import Session
-from backend.app.db.database import SessionLocal, engine, Base
-from app.models.user import User
-from app.models.profile import Profile
-from app.crud.user import create_user
-from app.schemas.user import UserCreate
-from app.utils import get_password_hash
+from app.db.database import Base, engine
+from app.models import user as user_models, profile as profile_models
+from app.crud import user as crud_user, profile as crud_profile
+from app.schemas import user as schemas_user, profile as schemas_profile
+from decouple import config
 
+# Eliminar las tablas existentes y crear nuevas tablas
+Base.metadata.drop_all(bind=engine)
+Base.metadata.create_all(bind=engine)
 
-def init_db(db: Session):
-    Base.metadata.create_all(bind=engine)
+# Crear una nueva sesión de base de datos
+db = Session(bind=engine)
 
-    admin_profile = Profile(name="admin")
-    user_profile = Profile(name="user")
+# Crear perfiles predeterminados
+admin_profile = crud_profile.create_profile(
+    db, schemas_profile.ProfileCreate(name="admin", description="Admin profile"))
+user_profile = crud_profile.create_profile(
+    db, schemas_profile.ProfileCreate(name="user", description="User profile"))
 
-    db.add(admin_profile)
-    db.add(user_profile)
-    db.commit()
-    db.refresh(admin_profile)
-    db.refresh(user_profile)
+# Crear usuarios predeterminados
+admin_user = schemas_user.UserCreate(
+    username="admin",
+    email="admin@example.com",
+    password="adminpass",  # Cambia esto a una contraseña segura en producción
+    profile_id=admin_profile.id
+)
+default_user = schemas_user.UserCreate(
+    username="user",
+    email="user@example.com",
+    password="userpass",  # Cambia esto a una contraseña segura en producción
+    profile_id=user_profile.id
+)
 
-    admin_user = UserCreate(username="guillem", email="guillem@example.com",
-                            password="adminpassword", profile_id=admin_profile.id)
-    user_user = UserCreate(username="maria", email="maria@example.com",
-                           password="userpassword", profile_id=user_profile.id)
+# Guardar los usuarios en la base de datos
+crud_user.create_user(db=db, user=admin_user)
+crud_user.create_user(db=db, user=default_user)
 
-    create_user(db=db, user=admin_user)
-    create_user(db=db, user=user_user)
+# Confirmar las transacciones y cerrar la sesión
+db.commit()
+db.close()
 
-
-if __name__ == "__main__":
-    db = SessionLocal()
-    init_db(db)
-    db.close()
+print("Base de datos inicializada con perfiles y usuarios predeterminados.")

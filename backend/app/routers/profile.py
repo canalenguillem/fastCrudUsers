@@ -8,7 +8,10 @@ from app.schemas import profile as schemas
 from app.db.database import get_db
 from app.routers.auth import get_current_admin_user
 
-router = APIRouter()
+router = APIRouter(
+    prefix="/profiles",
+    tags=["profiles"]
+)
 
 
 @router.post("/profiles/", response_model=schemas.Profile)
