@@ -3,7 +3,6 @@ from app.db.database import Base, engine
 from app.models import user as user_models, profile as profile_models
 from app.crud import user as crud_user, profile as crud_profile
 from app.schemas import user as schemas_user, profile as schemas_profile
-from decouple import config
 
 # Eliminar las tablas existentes y crear nuevas tablas
 Base.metadata.drop_all(bind=engine)

@@ -1,10 +1,11 @@
 from fastapi import APIRouter, Depends, HTTPException, status
 from fastapi.security import OAuth2PasswordBearer, OAuth2PasswordRequestForm
 from sqlalchemy.orm import Session
-from datetime import datetime, timedelta
+from datetime import timedelta, datetime
 from jose import JWTError, jwt
 from decouple import config
-from app.schemas.token import Token, TokenData
+from app.schemas.token import Token
+from app.schemas.token import TokenData
 from app.crud import user as crud_user
 from app.db.database import get_db
 from app.schemas.user import User as UserSchema

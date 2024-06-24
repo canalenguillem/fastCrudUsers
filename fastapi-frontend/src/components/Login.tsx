@@ -10,60 +10,58 @@ interface LoginProps {
 }
 
 const Login: React.FC<LoginProps> = ({ setUser }) => {
-  const [email, setEmail] = useState<string>("");
-  const [password, setPassword] = useState<string>("");
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const navigate = useNavigate();
 
-  const handleSubmit = async (event: React.FormEvent) => {
-    event.preventDefault();
-    const params = new URLSearchParams();
-    params.append("username", email);
-    params.append("password", password);
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
     try {
+      const params = new URLSearchParams();
+      params.append("username", email);
+      params.append("password", password);
+
       const response = await axios.post("http://localhost:8000/token", params, {
         headers: {
           "Content-Type": "application/x-www-form-urlencoded",
         },
       });
-      localStorage.setItem("token", response.data.access_token);
+      const { access_token } = response.data;
+      localStorage.setItem("token", access_token);
       const userResponse = await axios.get("http://localhost:8000/users/me", {
         headers: {
-          Authorization: `Bearer ${response.data.access_token}`,
+          Authorization: `Bearer ${access_token}`,
         },
       });
       setUser(userResponse.data);
-      navigate("/users");
+      navigate("/users"); // Redirigir al dashboard
     } catch (error) {
       console.error("Error logging in:", error);
     }
   };
 
   return (
-    <div className="container">
-      <form className="form" onSubmit={handleSubmit}>
+    <div className="login-container">
+      <div className="login-box">
         <h2>Login</h2>
-        <div>
-          <label>Email</label>
+        <form onSubmit={handleSubmit}>
           <input
-            className="input"
             type="email"
+            placeholder="Email"
             value={email}
             onChange={(e) => setEmail(e.target.value)}
+            required
           />
-        </div>
-        <div>
-          <label>Password</label>
           <input
-            className="input"
             type="password"
+            placeholder="Password"
             value={password}
             onChange={(e) => setPassword(e.target.value)}
+            required
           />
-        </div>
-        <button className="button" type="submit">
-          Login
-        </button>
-      </form>
+          <button type="submit">Login</button>
+        </form>
+      </div>
     </div>
   );
 };

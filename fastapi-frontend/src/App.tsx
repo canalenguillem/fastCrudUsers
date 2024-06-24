@@ -1,9 +1,13 @@
 import React, { useEffect, useState } from "react";
-import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import {
+  BrowserRouter as Router,
+  Route,
+  Routes,
+  Navigate,
+} from "react-router-dom";
 import UserList from "./components/UserList";
 import Login from "./components/Login";
 import Header from "./components/Header";
-import PrivateRoute from "./components/PrivateRoute";
 import axios from "axios";
 import "./App.css";
 
@@ -32,15 +36,26 @@ const App: React.FC = () => {
     fetchUser();
   }, []);
 
+  const logout = () => {
+    localStorage.removeItem("token");
+    setUser(null);
+  };
+
   return (
     <Router>
-      <Header user={user} />
+      {user && <Header user={user} logout={logout} />}
       <div className="content">
         <Routes>
-          <Route path="/login" element={<Login setUser={setUser} />} />
-          <Route element={<PrivateRoute />}>
-            <Route path="/users" element={<UserList />} />
-          </Route>
+          <Route
+            path="/login"
+            element={
+              user ? <Navigate to="/users" /> : <Login setUser={setUser} />
+            }
+          />
+          <Route
+            path="/users"
+            element={user ? <UserList /> : <Navigate to="/login" />}
+          />
         </Routes>
       </div>
     </Router>
