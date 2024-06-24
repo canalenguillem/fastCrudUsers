@@ -33,6 +33,9 @@ const App: React.FC = () => {
           setUser(response.data);
         } catch (error) {
           console.error("Error fetching user:", error);
+          // Si hay un error, eliminamos el token
+          localStorage.removeItem("token");
+          setUser(null);
         }
       }
     };
