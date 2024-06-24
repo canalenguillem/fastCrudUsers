@@ -5,16 +5,20 @@ import {
   Routes,
   Navigate,
 } from "react-router-dom";
+import Welcome from "./components/Welcome";
 import UserList from "./components/UserList";
+import CreateUser from "./components/CreateUser";
 import Login from "./components/Login";
 import Header from "./components/Header";
 import axios from "axios";
 import "./App.css";
 
 const App: React.FC = () => {
-  const [user, setUser] = useState<{ username: string; email: string } | null>(
-    null
-  );
+  const [user, setUser] = useState<{
+    username: string;
+    email: string;
+    profile: { name: string };
+  } | null>(null);
 
   useEffect(() => {
     const fetchUser = async () => {
@@ -48,14 +52,18 @@ const App: React.FC = () => {
         <Routes>
           <Route
             path="/login"
-            element={
-              user ? <Navigate to="/users" /> : <Login setUser={setUser} />
-            }
+            element={user ? <Navigate to="/" /> : <Login setUser={setUser} />}
           />
           <Route
-            path="/users"
-            element={user ? <UserList /> : <Navigate to="/login" />}
+            path="/"
+            element={user ? <Welcome user={user} /> : <Navigate to="/login" />}
           />
+          {user && user.profile && user.profile.name === "admin" && (
+            <>
+              <Route path="/users" element={<UserList />} />
+              <Route path="/create-user" element={<CreateUser />} />
+            </>
+          )}
         </Routes>
       </div>
     </Router>

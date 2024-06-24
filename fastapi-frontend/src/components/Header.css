@@ -23,6 +23,16 @@ header nav span {
     margin-right: 1rem;
 }
 
+header nav a {
+    margin-right: 1rem;
+    text-decoration: none;
+    color: #007bff;
+}
+
+header nav a:hover {
+    text-decoration: underline;
+}
+
 header nav button {
     padding: 0.5rem 1rem;
     background-color: #007bff;

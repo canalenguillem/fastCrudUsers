@@ -2,6 +2,8 @@ from fastapi import APIRouter, Depends, HTTPException, status
 from sqlalchemy.orm import Session
 from app.crud import user as crud_user
 from app.schemas import user as schemas_user
+from app.schemas.user import User as UserSchema
+
 from app.db.database import get_db
 from typing import List
 from app.routers.auth import get_current_admin_user, get_current_active_user
@@ -26,8 +28,10 @@ def read_users(skip: int = 0, limit: int = 100, db: Session = Depends(get_db)):
     return users
 
 
-@router.get("/me", response_model=schemas_user.User)
-def read_user_me(current_user: schemas_user.User = Depends(get_current_active_user)):
+@router.get("/users/me", response_model=UserSchema)
+def read_users_me(current_user: UserSchema = Depends(get_current_active_user),
+                  db: Session = Depends(get_db)):
+    print("in readuserme")
     return current_user
 
 

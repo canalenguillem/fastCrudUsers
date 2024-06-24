@@ -1,5 +1,6 @@
 from pydantic import BaseModel
 from typing import Optional
+from app.schemas.profile import Profile  # Asegurarnos de importar el Profile
 
 
 class UserBase(BaseModel):
@@ -15,10 +16,11 @@ class UserCreate(UserBase):
 class User(UserBase):
     id: int
     is_active: bool
-    profile_id: int
+    # Cambiamos profile_id a profile para incluir la información completa del perfil
+    profile: Optional[Profile]
 
     class Config:
-        from_attributes = True
+        orm_mode = True
 
 
 class UserUpdate(BaseModel):

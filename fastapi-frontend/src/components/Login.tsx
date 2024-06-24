@@ -5,7 +5,11 @@ import "./Login.css";
 
 interface LoginProps {
   setUser: React.Dispatch<
-    React.SetStateAction<{ username: string; email: string } | null>
+    React.SetStateAction<{
+      username: string;
+      email: string;
+      profile: { name: string };
+    } | null>
   >;
 }
 
@@ -34,7 +38,7 @@ const Login: React.FC<LoginProps> = ({ setUser }) => {
         },
       });
       setUser(userResponse.data);
-      navigate("/users"); // Redirigir al dashboard
+      navigate("/"); // Redirigir al dashboard
     } catch (error) {
       console.error("Error logging in:", error);
     }
