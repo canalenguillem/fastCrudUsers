@@ -1,0 +1,9 @@
+fastapi
+uvicorn[standard]
+sqlalchemy
+python-decouple
+cryptography
+python-jose[cryptography]
+passlib[bcrypt]
+bcrypt==3.2.0
+pydantic
