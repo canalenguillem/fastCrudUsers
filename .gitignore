@@ -147,3 +147,4 @@ build/
 .env.development.local
 .env.test.local
 .env.production.local
+fastapi-frontend/.vite/deps/_metadata.json
