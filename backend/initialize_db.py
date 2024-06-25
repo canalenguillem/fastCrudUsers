@@ -1,10 +1,11 @@
 from sqlalchemy.orm import Session
-from app.db.database import Base, engine
-from app.models import user as user_models, profile as profile_models, blockchain as blockchain_models
-from app.crud import user as crud_user, profile as crud_profile, blockchain as crud_blockchain
-from app.schemas import user as schemas_user, profile as schemas_profile, blockchain as schemas_blockchain
+from app.db.database import Base, engine, SessionLocal
+from app.models import user as user_models, profile as profile_models, blockchain as blockchain_models, erc20_token as token_models
+from app.crud import user as crud_user, profile as crud_profile, blockchain as crud_blockchain, erc20_token as crud_token
+from app.schemas import user as schemas_user, profile as schemas_profile, blockchain as schemas_blockchain, erc20_token as schemas_token
 from decouple import config
 
+# Reiniciar la base de datos
 Base.metadata.drop_all(bind=engine)
 Base.metadata.create_all(bind=engine)
 
@@ -46,7 +47,20 @@ blockchains = [
 for blockchain in blockchains:
     crud_blockchain.create_blockchain(db, blockchain)
 
+# Crear tokens ERC20 predeterminados (ejemplo)
+erc20_tokens = [
+    schemas_token.TokenCreate(
+        name="ExampleToken",
+        symbol="EXT",
+        contract_address="0x0000000000000000000000000000000000000000",  # Dirección de contrato ficticia
+        blockchain_id=1  # Asume que Ethereum tiene id 1
+    )
+]
+
+for token in erc20_tokens:
+    crud_token.create_token(db, token)
+
 db.commit()
 db.close()
 
-print("Base de datos inicializada con perfiles, usuarios y blockchains predeterminados.")
+print("Base de datos inicializada con perfiles, usuarios, blockchains y tokens ERC20 predeterminados.")
