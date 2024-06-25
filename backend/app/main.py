@@ -1,6 +1,6 @@
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
-from app.routers import user, profile, auth, ethereum
+from app.routers import user, profile, auth, ethereum, blockchain
 
 app = FastAPI()
 
@@ -21,8 +21,10 @@ app.add_middleware(
 
 app.include_router(user.router)
 app.include_router(profile.router)
-app.include_router(auth.router)
 app.include_router(ethereum.router)  # Incluir la ruta de ethereum
+app.include_router(blockchain.router)  # Incluir la ruta de blockchain
+# Asegúrate de que el prefijo sea /auth
+app.include_router(auth.router, prefix="/auth")
 
 
 @app.get("/")
