@@ -1,18 +1,17 @@
 from web3 import Web3
 from sqlalchemy.orm import Session
 from app.crud.blockchain import get_blockchain_by_name
-from app.crud.erc20_token import get_tokens_by_blockchain_id
+from app.crud.erc20_token import get_token_by_id
+from app.crud.blockchain import get_blockchain_by_id
+
+
 
 from abis.ERC20_token import ERC20_ABI
 
-def get_web3_instance(db: Session, blockchain_name: str) -> Web3:
-    blockchain = get_blockchain_by_name(db, blockchain_name)
-    if not blockchain:
-        raise ValueError(f"No blockchain found with name {blockchain_name}")
-
-    web3 = Web3(Web3.HTTPProvider(blockchain.node_url))
+def get_web3_instance(node_url: str) -> Web3:
+    web3 = Web3(Web3.HTTPProvider(node_url))
     if not web3.is_connected():
-        raise ConnectionError(f"Cannot connect to {blockchain_name} node")
+        raise ConnectionError(f"Cannot connect to node at {node_url}")
     return web3
 
 def get_balance(db: Session, blockchain_name: str, address: str) -> float:
@@ -21,13 +20,16 @@ def get_balance(db: Session, blockchain_name: str, address: str) -> float:
     balance_eth = Web3.from_wei(balance_wei, 'ether')
     return balance_eth
 
-def get_token_balances(db: Session, blockchain_name: str, address: str) -> dict:
-    web3 = get_web3_instance(db, blockchain_name)
-    blockchain = get_blockchain_by_name(db, blockchain_name)
-    tokens = get_tokens_by_blockchain_id(db, blockchain.id)
-    balances = {}
-    for token in tokens:
-        contract = web3.eth.contract(address=Web3.to_checksum_address(token.contract_address), abi=ERC20_ABI)
-        balance = contract.functions.balanceOf(Web3.to_checksum_address(address)).call()
-        balances[token.symbol] = Web3.from_wei(balance, 'ether')
-    return balances
+def get_token_balance(db: Session, address: str, token_id: int) -> float:
+    token = get_token_by_id(db, token_id)
+    if not token:
+        raise ValueError(f"No token found with id {token_id}")
+
+    blockchain = get_blockchain_by_id(db, token.blockchain_id)
+    if not blockchain:
+        raise ValueError(f"No blockchain found with id {token.blockchain_id}")
+
+    web3 = get_web3_instance(blockchain.node_url)
+    contract = web3.eth.contract(address=Web3.to_checksum_address(token.contract_address), abi=ERC20_ABI)
+    balance = contract.functions.balanceOf(Web3.to_checksum_address(address)).call()
+    return Web3.from_wei(balance, 'ether')

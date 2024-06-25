@@ -1,5 +1,7 @@
 from sqlalchemy.orm import Session
 from app.models.blockchain import Blockchain as BlockchainModel
+from app.models.blockchain import Blockchain
+
 from app.schemas.blockchain import BlockchainCreate as BlockchainCreateSchema
 
 
@@ -10,6 +12,10 @@ def create_blockchain(db: Session, blockchain: BlockchainCreateSchema):
     db.commit()
     db.refresh(db_blockchain)
     return db_blockchain
+
+def get_blockchain_by_id(db: Session, blockchain_id: int) -> Blockchain:
+    return db.query(Blockchain).filter(Blockchain.id == blockchain_id).first()
+
 
 
 def get_blockchain_by_name(db: Session, name: str):
