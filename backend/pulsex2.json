@@ -1,0 +1,8 @@
+{
+    "name": "PULSEXv2",
+    "factory_address": "0x29eA7545DEf87022BAdc76323F373EA1e707C523",
+    "router_address": "0x165C3410fC91EF562C50559f7d2289fEbed552d9",
+    "blockchain_id": 2,
+    "factory_abi_path": "abis/pulsexv2_factory.py",
+    "router_abi_path": "abis/pulsexv2_router.py"
+  }

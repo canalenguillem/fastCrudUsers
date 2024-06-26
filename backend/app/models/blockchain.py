@@ -10,3 +10,4 @@ class Blockchain(Base):
     node_url = Column(String, nullable=False)
     
     tokens = relationship("ERC20Token", back_populates="blockchain")
+    dexes = relationship("DEX", back_populates="blockchain")

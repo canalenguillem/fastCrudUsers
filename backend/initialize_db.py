@@ -1,11 +1,10 @@
 from sqlalchemy.orm import Session
-from app.db.database import Base, engine, SessionLocal
-from app.models import user as user_models, profile as profile_models, blockchain as blockchain_models, erc20_token as token_models
-from app.crud import user as crud_user, profile as crud_profile, blockchain as crud_blockchain, erc20_token as crud_token
-from app.schemas import user as schemas_user, profile as schemas_profile, blockchain as schemas_blockchain, erc20_token as schemas_token
+from app.db.database import Base, engine
+from app.models import user as user_models, profile as profile_models, blockchain as blockchain_models, dex as dex_models, erc20_token as erc20_token_models
+from app.crud import user as crud_user, profile as crud_profile, blockchain as crud_blockchain, dex as crud_dex
+from app.schemas import user as schemas_user, profile as schemas_profile, blockchain as schemas_blockchain, dex as schemas_dex
 from decouple import config
 
-# Reiniciar la base de datos
 Base.metadata.drop_all(bind=engine)
 Base.metadata.create_all(bind=engine)
 
@@ -47,20 +46,19 @@ blockchains = [
 for blockchain in blockchains:
     crud_blockchain.create_blockchain(db, blockchain)
 
-# Crear tokens ERC20 predeterminados (ejemplo)
-erc20_tokens = [
-    schemas_token.TokenCreate(
-        name="ExampleToken",
-        symbol="EXT",
-        contract_address="0x0000000000000000000000000000000000000000",  # Dirección de contrato ficticia
-        blockchain_id=1  # Asume que Ethereum tiene id 1
-    )
-]
+# Añadir DEX predeterminado
+pulsexv2_dex = schemas_dex.DEXCreate(
+    name="PULSEXv2",
+    factory_address="0x29eA7545DEf87022BAdc76323F373EA1e707C523",
+    router_address="0x165C3410fC91EF562C50559f7d2289fEbed552d9",
+    blockchain_id=2,  # Asumimos que el ID de PulseChain es 2
+    factory_abi_path="abis/pulsexv2_factory.py",
+    router_abi_path="abis/pulsexv2_router.py"
+)
 
-for token in erc20_tokens:
-    crud_token.create_token(db, token)
+crud_dex.create_dex(db, pulsexv2_dex)
 
 db.commit()
 db.close()
 
-print("Base de datos inicializada con perfiles, usuarios, blockchains y tokens ERC20 predeterminados.")
+print("Base de datos inicializada con perfiles, usuarios, blockchains y DEX predeterminados.")
