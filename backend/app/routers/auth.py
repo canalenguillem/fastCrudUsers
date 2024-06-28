@@ -9,7 +9,11 @@ from app.crud import user as crud_user
 from app.db.database import get_db
 from app.schemas.user import User as UserSchema
 
-router = APIRouter()
+router = APIRouter(
+    prefix="/auth",
+    tags=["auth"]
+)
+
 
 # Asegurarse de que el tokenUrl sea correcto
 oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/token")

@@ -8,8 +8,10 @@ from app.schemas.erc20_token import TokenCreate
 from app.ethereum import get_token_balance
 
 
-router = APIRouter()
-
+router = APIRouter(
+    prefix="/tokens",
+    tags=["tokens"]
+)
 @router.post("/", response_model=Token, dependencies=[Depends(get_current_admin_user)])
 def create_erc20_token(token: TokenCreate, db: Session = Depends(get_db)):
     db_token = create_token(db, token)
