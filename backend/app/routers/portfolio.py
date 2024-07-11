@@ -8,7 +8,7 @@ from app.db.database import get_db
 from app.routers.auth import get_current_active_user
 from app.models.user import User
 from app.crud.erc20_token import get_tokens_by_blockchain_id
-from app.ethereum import get_token_balance
+from app.ethereum import get_token_balance,get_balance
 
 
 router = APIRouter(
@@ -48,6 +48,11 @@ def get_portfolio_balances(portfolio_id: int, blockchain_id: int, db: Session = 
     balances: Dict[str, Dict[str, float]] = {}
     for address in addresses:
         address_balances = {}
+        try:
+            native_balance = get_balance(db, blockchain_id, address.address)
+            address_balances['ETH'] = native_balance
+        except Exception as e:
+            address_balances['ETH'] = str(e)
         for token in tokens:
             token_balance = get_token_balance(db, address.address, token.id)
             address_balances[token.symbol] = token_balance["balance"]
