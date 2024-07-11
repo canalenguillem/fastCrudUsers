@@ -3,6 +3,8 @@ from app.models.portfolio import Portfolio
 from app.models.address import Address
 from app.schemas.portfolio import PortfolioCreate, PortfolioUpdate
 from app.schemas.address import AddressCreate
+from typing import List
+
 
 def create_portfolio(db: Session, portfolio: PortfolioCreate, user_id: int) -> Portfolio:
     db_portfolio = Portfolio(name=portfolio.name, user_id=user_id)
@@ -30,3 +32,9 @@ def add_address_to_portfolio(db: Session, address: AddressCreate, portfolio_id: 
         db.commit()
         db.refresh(db_portfolio)
     return db_address
+
+def get_addresses_by_portfolio_id(db: Session, portfolio_id: int) -> List[Address]:
+    portfolio = db.query(Portfolio).filter(Portfolio.id == portfolio_id).first()
+    if portfolio:
+        return portfolio.addresses
+    return []
