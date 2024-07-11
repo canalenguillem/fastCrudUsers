@@ -26,12 +26,11 @@ def get_erc20_tokens_by_blockchain(blockchain_id: int, db: Session = Depends(get
         raise HTTPException(status_code=404, detail="No tokens found for this blockchain")
     return tokens
 
-@router.get("/balance/{address}/{token_id}", response_model=float)
+@router.get("/balance/{address}/{token_id}")
 def get_erc20_token_balance(address: str, token_id: int, db: Session = Depends(get_db)):
     try:
         balance = get_token_balance(db, address, token_id)
-    except ValueError as e:
-        raise HTTPException(status_code=404, detail=str(e))
-    except ConnectionError as e:
-        raise HTTPException(status_code=500, detail=str(e))
-    return balance
+        return {"address": address, "token_id": token_id, "balance": balance}
+    except Exception as e:
+        raise HTTPException(status_code=400, detail=str(e))
+

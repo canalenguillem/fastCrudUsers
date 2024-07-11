@@ -14,7 +14,7 @@ router = APIRouter(
 )
 
 
-@router.post("/profiles/", response_model=schemas.Profile)
+@router.post("/", response_model=schemas.Profile)
 def create_profile(
     profile: schemas.ProfileCreate,
     db: Session = Depends(get_db),
@@ -24,7 +24,7 @@ def create_profile(
     return crud.create_profile(db=db, profile=profile)
 
 
-@router.get("/profiles/", response_model=List[schemas.Profile])
+@router.get("/", response_model=List[schemas.Profile])
 def read_profiles(
     skip: int = 0,
     limit: int = 10,
@@ -36,7 +36,7 @@ def read_profiles(
     return profiles
 
 
-@router.get("/profiles/{profile_id}", response_model=schemas.Profile)
+@router.get("/{profile_id}", response_model=schemas.Profile)
 def read_profile(
     profile_id: int,
     db: Session = Depends(get_db),
@@ -49,7 +49,7 @@ def read_profile(
     return db_profile
 
 
-@router.delete("/profiles/{profile_id}", response_model=schemas.Profile)
+@router.delete("/{profile_id}", response_model=schemas.Profile)
 def delete_profile(
     profile_id: int,
     db: Session = Depends(get_db),

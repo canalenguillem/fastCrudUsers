@@ -1,6 +1,6 @@
 from sqlalchemy.orm import Session
 from app.db.database import Base, engine
-from app.models import user as user_models, profile as profile_models, blockchain as blockchain_models, dex as dex_models, erc20_token as erc20_token_models
+from app.models import user as user_models, profile as profile_models, blockchain as blockchain_models, dex as dex_models, erc20_token as erc20_token_models, portfolio as portfolio_models, address as address_models
 from app.crud import user as crud_user, profile as crud_profile, blockchain as crud_blockchain, dex as crud_dex, erc20_token as crud_erc20_token
 from app.schemas import user as schemas_user, profile as schemas_profile, blockchain as schemas_blockchain, dex as schemas_dex, erc20_token as schemas_erc20_token
 from decouple import config

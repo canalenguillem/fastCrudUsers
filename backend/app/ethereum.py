@@ -19,35 +19,36 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 
-def get_web3_instance(node_url: str) -> Web3:
-    web3 = Web3(Web3.HTTPProvider(node_url))
+def get_web3_instance(db: Session, blockchain_id: int) -> Web3:
+    blockchain: Blockchain = get_blockchain_by_id(db, blockchain_id)
+    if not blockchain:
+        raise ValueError(f"No blockchain found with ID {blockchain_id}")
+
+    web3 = Web3(Web3.HTTPProvider(blockchain.node_url))
     if not web3.is_connected():
-        raise ConnectionError(f"Cannot connect to node at {node_url}")
+        raise ConnectionError(f"Cannot connect to blockchain with ID {blockchain_id}")
     return web3
 
-def get_balance(db: Session, blockchain_name: str, address: str) -> float:
-    web3 = get_web3_instance(db, blockchain_name)
+def get_balance(db: Session, blockchain_id: int, address: str) -> float:
+    web3 = get_web3_instance(db, blockchain_id)
     balance_wei = web3.eth.get_balance(address)
     balance_eth = Web3.from_wei(balance_wei, 'ether')
     return balance_eth
 
-def get_token_balance(db: Session, address: str, token_id: int) -> float:
+def get_token_balance(db: Session, address: str, token_id: int) -> dict:
     token = get_token_by_id(db, token_id)
     if not token:
         raise ValueError(f"No token found with id {token_id}")
 
-    blockchain = get_blockchain_by_id(db, token.blockchain_id)
-    if not blockchain:
-        raise ValueError(f"No blockchain found with id {token.blockchain_id}")
-
-    web3 = get_web3_instance(blockchain.node_url)
+    web3 = get_web3_instance(db, token.blockchain_id)
     contract = web3.eth.contract(address=Web3.to_checksum_address(token.contract_address), abi=ERC20_ABI)
     balance = contract.functions.balanceOf(Web3.to_checksum_address(address)).call()
-    return Web3.from_wei(balance, 'ether')
+    return {"balance": Web3.from_wei(balance, 'ether')}
+
 
 def get_last_transactions(db: Session, dex_id: int, num_transactions: int = 10):
     try:
-        todie=1000
+        todie=10
         print("in get_last_transaction")
         dex = get_dex_by_id(db, dex_id)
         if not dex:
@@ -59,7 +60,7 @@ def get_last_transactions(db: Session, dex_id: int, num_transactions: int = 10):
             raise ValueError(f"No blockchain found with id {dex.blockchain_id}")
         print(f"blockchainfound {blockchain}")
 
-        web3 = get_web3_instance(blockchain.node_url)
+        web3 = get_web3_instance(db, blockchain.id)
         print(f"web 3 {web3.is_connected()}")
         factory_abi = load_abi_from_path(dex.factory_abi_path)
         print(f"factory_abi ")
@@ -74,6 +75,7 @@ def get_last_transactions(db: Session, dex_id: int, num_transactions: int = 10):
             todie=todie-1
             block = web3.eth.get_block(latest_block, full_transactions=True)
             print(f"block: {block}")
+            print(f"todie {todie}")
             for tx in block.transactions:
                 if tx.to and tx.to.lower() == dex.factory_address.lower():
                     transactions.append(tx)
@@ -96,7 +98,7 @@ def get_liquidity_amounts(db: Session, dex_id: int, token0_address: str, token1_
     if not blockchain:
         raise ValueError(f"No blockchain found with id {dex.blockchain_id}")
 
-    web3 = get_web3_instance(blockchain.node_url)
+    web3 = get_web3_instance(db, dex.blockchain_id)
     factory_contract = web3.eth.contract(address=Web3.to_checksum_address(dex.factory_address), abi=load_abi_from_path(dex.factory_abi_path))
     router_contract = web3.eth.contract(address=Web3.to_checksum_address(dex.router_address), abi=load_abi_from_path(dex.router_abi_path))
 
@@ -128,3 +130,12 @@ def get_token_price(db: Session, dex_id: int, token0_address: str, token1_addres
         raise ValueError("Token0 amount is zero, cannot calculate price")
     price = token1_amount / token0_amount
     return price
+
+def get_portfolio_token_balances(db: Session, portfolio_id: int, blockchain_id: int) -> dict:
+    portfolio = get_portfolio(db, portfolio_id)
+    if not portfolio:
+        raise ValueError("Portfolio not found")
+    balances = {}
+    for address in portfolio.addresses:
+        balances[address.address] = get_token_balances(db, blockchain_id, address.address)
+    return balances
