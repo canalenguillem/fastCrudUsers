@@ -15,7 +15,7 @@ router = APIRouter(
 
 @router.post("/", response_model=PortfolioOut)
 def create_new_portfolio(portfolio: PortfolioCreate, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
-    return create_portfolio(db=db, portfolio=portfolio)
+    return create_portfolio(db=db, portfolio=portfolio, user_id=current_user.id)
 
 @router.get("/{portfolio_id}", response_model=PortfolioOut)
 def read_portfolio(portfolio_id: int, db: Session = Depends(get_db), current_user: User = Depends(get_current_active_user)):
