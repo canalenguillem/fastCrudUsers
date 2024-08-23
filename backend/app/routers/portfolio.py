@@ -41,11 +41,20 @@ def get_portfolio_balances(portfolio_id: int, blockchain_id: int, db: Session = 
     if not addresses:
         raise HTTPException(status_code=404, detail="Portfolio not found or no addresses associated with the portfolio")
 
-    tokens = get_tokens_by_blockchain_id(db, blockchain_id)
-    if not tokens:
-        raise HTTPException(status_code=404, detail="No tokens found for the specified blockchain")
+    native_balance=0
+    for address in addresses:
+        blc=get_balance(db,1,address=address.address)
+        native_balance+=blc
+        print(address.address,blc)
+    print(f"native balanc {native_balance}")
 
     balances: Dict[str, Dict[str, float]] = {}
+    balances["ETH"]=native_balance
+    tokens = get_tokens_by_blockchain_id(db, blockchain_id)
+    if not tokens:
+        return balances
+        # raise HTTPException(status_code=404, detail="No tokens found for the specified blockchain")
+
     for address in addresses:
         address_balances = {}
         try:

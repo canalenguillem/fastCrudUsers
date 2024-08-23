@@ -25,11 +25,15 @@ const Login: React.FC<LoginProps> = ({ setUser }) => {
       params.append("username", email);
       params.append("password", password);
 
-      const response = await axios.post("http://localhost:8000/token", params, {
-        headers: {
-          "Content-Type": "application/x-www-form-urlencoded",
-        },
-      });
+      const response = await axios.post(
+        "http://localhost:8000/auth/token",
+        params,
+        {
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+        }
+      );
       const { access_token } = response.data;
       localStorage.setItem("token", access_token);
       const userResponse = await axios.get("http://localhost:8000/users/me", {
